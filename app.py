@@ -17,6 +17,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "engine"))
 
 from engine.tracer import trace_transaction
 from engine.reconciler import reconcile
+from AI.explainer import explain_investigation
 
 app = Flask(__name__)
 CORS(app)  # allow frontend (different port) to call this API
@@ -169,7 +170,57 @@ def trace():
     }
 
     return jsonify(clean_nans(response))
+@app.route("/api/ask", methods=["POST"])
+def ask():
+    data = request.get_json()
 
+    transaction_id = data.get("transaction_id")
+    question = data.get("question")
+
+    if not transaction_id or not question:
+        return jsonify({
+            "error": "transaction_id and question are required"
+        }), 400
+
+    try:
+        traced = trace_transaction(transaction_id)
+
+        if traced is None:
+            return jsonify({
+                "error": "Transaction not found"
+            }), 404
+
+        reconciliation = reconcile(traced)
+
+        investigation_result = {
+            "transaction_id": transaction_id,
+            "amount": reconciliation.get("amount"),
+            "currency": reconciliation.get("currency", "INR"),
+            "settlement": reconciliation.get("settlement"),
+            "gateway": reconciliation.get("gateway"),
+            "bank": reconciliation.get("bank"),
+            "ledger": reconciliation.get("ledger"),
+            "determination": reconciliation.get("determination"),
+            "confidence": reconciliation.get("confidence"),
+            "evidence": reconciliation.get("evidence"),
+            "exceptions": reconciliation.get("exceptions"),
+            "recommended_action": reconciliation.get("recommended_action")
+        }
+
+        ai_response = explain_investigation(
+            investigation_result,
+            question
+        )
+
+        if not ai_response.get("follow_up_answer"):
+            ai_response["follow_up_answer"] = ai_response.get("explanation")
+
+        return jsonify(ai_response)
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

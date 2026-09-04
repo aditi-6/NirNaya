@@ -1,27 +1,10 @@
 import os
 from dotenv import load_dotenv
-from groq import Groq
-
-load_dotenv()
-
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-
-response = client.chat.completions.create(
-    model="openai/gpt-oss-20b",
-    messages=[
-        {
-            "role": "user",
-            "content": "Reply with exactly: NirNaya AI CONNECTED"
-        }
-    ]
-)
-
-print(response.choices[0].message.content)
 
 import json
 
 
-def build_grounded_prompt(investigation_result):
+def build_grounded_prompt(investigation_result, question=None):
     """
     Creates a prompt containing only verified backend facts.
     """
@@ -38,6 +21,13 @@ IMPORTANT:
 VERIFIED INVESTIGATION RESULT:
 
 {json.dumps(investigation_result, indent=2)}
+
+FOLLOW-UP QUESTION TO ANSWER:
+{question if question else "No follow-up question provided."}
+
+IMPORTANT:
+If a follow-up question is provided, you MUST answer that specific
+question in the "follow_up_answer" field.
 
 Return your response according to the required AI response structure.
 """

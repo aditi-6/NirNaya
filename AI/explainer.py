@@ -11,13 +11,13 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 
-def explain_investigation(investigation_result):
+def explain_investigation(investigation_result, question=None):
     """
     Sends verified backend facts to the LLM
     and returns a grounded AI explanation.
     """
 
-    user_prompt = build_grounded_prompt(investigation_result)
+    user_prompt = build_grounded_prompt(investigation_result, question)
 
     try:
         response = client.chat.completions.create(
