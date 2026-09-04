@@ -39,7 +39,7 @@ function initializeThemeToggle() {
             document.body.classList.contains("light-mode");
 
         localStorage.setItem(
-            "sakshya-theme",
+            "NirNaya-theme",
             isLightMode ? "light" : "dark"
         );
 
@@ -52,7 +52,7 @@ function initializeThemeToggle() {
    RESTORE SAVED THEME
 ========================================================= */
 
-const savedTheme = localStorage.getItem("sakshya-theme");
+const savedTheme = localStorage.getItem("NirNaya-theme");
 
 if (savedTheme === "light") {
     document.body.classList.add("light-mode");
