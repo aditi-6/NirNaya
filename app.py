@@ -38,6 +38,99 @@ def health():
     return jsonify({"status": "ok", "service": "NirNaya backend"})
 
 
+@app.route("/api/investigate", methods=["POST"])
+def investigate():
+    """
+    Same underlying logic as /api/trace, reshaped into the nested
+    investigation_result.json contract shape for the AI/frontend layers.
+    NOTE: 'timeline' is intentionally omitted for now (not enough time to
+    build a reliable event sequence) — do not build against a timeline field.
+    """
+    data = request.get_json(silent=True) or {}
+    transaction_id = data.get("transaction_id", "").strip()
+
+    if not transaction_id:
+        return jsonify({"error": "transaction_id is required"}), 400
+
+    trace_result = trace_transaction(transaction_id)
+    reconciliation = reconcile(trace_result)
+
+    if not trace_result.get("found"):
+        return jsonify(clean_nans({
+            "transaction_id": transaction_id,
+            "amount": None,
+            "currency": None,
+            "settlement": None,
+            "gateway": None,
+            "bank": None,
+            "ledger": None,
+            "determination": {
+                "status": "EXCEPTION",
+                "root_cause": reconciliation["classification"],
+                "severity": reconciliation["severity"]
+            },
+            "confidence": reconciliation["confidence"],
+            "evidence": reconciliation["evidence"],
+            "exceptions": reconciliation["exceptions"],
+            "recommended_action": reconciliation["recommended_action"]
+        }))
+
+    gateway = trace_result["gateway"]
+    bank_records = trace_result["bank_records"]
+    bank = bank_records[0] if bank_records else None
+    ledger = trace_result["ledger"]
+
+    # Map internal classification -> user-facing status
+    status_map = {
+        "SUCCESS": "SETTLED",
+        "BANK_POSTING_DELAY": "PENDING",
+        "SETTLEMENT_ON_HOLD": "PENDING",
+        "PARTIAL_SETTLEMENT": "PENDING",
+        "LEDGER_SYNC_DELAY": "PENDING",
+        "BANK_REJECTION": "FAILED",
+        "GATEWAY_FAILURE": "FAILED",
+    }
+    user_status = status_map.get(reconciliation["classification"], "EXCEPTION")
+
+    response = {
+        "transaction_id": transaction_id,
+        "amount": gateway.get("amount"),
+        "currency": gateway.get("currency"),
+        "settlement": {
+            "settlement_id": gateway.get("settlement_id") or None,
+            "status": gateway.get("settlement_status"),
+            "utr": gateway.get("utr")
+        },
+        "gateway": {
+            "status": gateway.get("payment_status"),
+            "amount": gateway.get("amount"),
+            "timestamp": gateway.get("captured_at")
+        },
+        "bank": {
+            "status": bank.get("bank_status") if bank else None,
+            "amount": bank.get("amount") if bank else None,
+            "utr": bank.get("utr") if bank else None,
+            "timestamp": bank.get("credited_at") if bank else None
+        } if bank else None,
+        "ledger": {
+            "status": ledger.get("ledger_status") if ledger else None,
+            "amount": ledger.get("net_amount") if ledger else None,
+            "timestamp": ledger.get("posted_at") if ledger else None
+        } if ledger else None,
+        "determination": {
+            "status": user_status,
+            "root_cause": reconciliation["classification"],
+            "severity": reconciliation["severity"]
+        },
+        "confidence": reconciliation["confidence"],
+        "evidence": reconciliation["evidence"],
+        "exceptions": reconciliation["exceptions"],
+        "recommended_action": reconciliation["recommended_action"]
+    }
+
+    return jsonify(clean_nans(response))
+
+
 @app.route("/api/trace", methods=["POST"])
 def trace():
     data = request.get_json(silent=True) or {}
