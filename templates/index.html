@@ -60,28 +60,28 @@
                     OPERATIONS
                 </div>
 
-                <a href="#" class="nav-item active">
-                    <i data-lucide="layout-dashboard"></i>
-                    <span>Overview</span>
+                <a href="#" class="nav-item active" data-page="overview">
+                   <i data-lucide="layout-dashboard"></i>
+                   <span>Overview</span>
                 </a>
 
-                <a href="#" class="nav-item">
-                    <i data-lucide="search"></i>
-                    <span>Investigate</span>
+                <a href="#" class="nav-item" data-page="investigation">
+                  <i data-lucide="search"></i>
+                  <span>Investigate</span>
                 </a>
 
-                <a href="#" class="nav-item">
+               <a href="#" class="nav-item" data-page="health">
                     <i data-lucide="activity"></i>
                     <span>Settlement Health</span>
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" data-page="alerts">
                     <i data-lucide="bell"></i>
                     <span>Alerts</span>
                     <span class="nav-badge">3</span>
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" data-page="history">
                     <i data-lucide="history"></i>
                     <span>History</span>
                 </a>
@@ -168,7 +168,7 @@
 
             <!-- PAGE CONTENT -->
 
-            <div class="page-content">
+            <div class="page-content" id="overviewPage">
 
                 <!-- PAGE INTRO -->
 
@@ -543,6 +543,747 @@
 
             </div>
 
+        <!-- =====================================================
+     INVESTIGATION PAGE
+====================================================== -->
+
+<div class="page-content investigation-page" id="investigationPage">
+
+    <!-- PAGE HEADER -->
+
+    <section class="investigation-page-header">
+
+        <div>
+
+            <span class="eyebrow">
+                TRANSACTION INVESTIGATION
+            </span>
+
+            <h2>
+                Settlement Investigation
+            </h2>
+
+            <p>
+                Trace the transaction across gateway, bank and ledger
+                records using verified settlement evidence.
+            </p>
+
+        </div>
+
+        <button class="secondary-button" id="backToOverview">
+
+            <i data-lucide="arrow-left"></i>
+
+            Overview
+
+        </button>
+
+    </section>
+
+
+    <!-- TRANSACTION SUMMARY -->
+
+    <section class="investigation-summary">
+
+        <div class="transaction-identity">
+
+            <div class="transaction-icon">
+                <i data-lucide="receipt-text"></i>
+            </div>
+
+            <div>
+
+                <span class="section-label">
+                    TRANSACTION
+                </span>
+
+                <h3 id="investigationTransactionId">
+                    TXN-10482
+                </h3>
+
+                <span class="transaction-meta">
+                    Settlement ID:
+                    <strong id="investigationSettlementId">
+                        SET-78231
+                    </strong>
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-amount">
+
+            <span class="section-label">
+                AMOUNT
+            </span>
+
+            <strong id="investigationAmount">
+                ₹12,500
+            </strong>
+
+            <span id="investigationCurrency">
+                INR
+            </span>
+
+        </div>
+
+
+        <div class="summary-status">
+
+            <span class="section-label">
+                SETTLEMENT STATUS
+            </span>
+
+            <div class="status-pill pending">
+
+                <span class="status-pill-dot"></span>
+
+                <strong id="investigationStatus">
+                    PENDING
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ROOT CAUSE + CONFIDENCE -->
+
+    <section class="determination-grid">
+
+        <div class="determination-card">
+
+            <div class="determination-card-icon">
+                <i data-lucide="triangle-alert"></i>
+            </div>
+
+            <div>
+
+                <span class="section-label">
+                    ROOT CAUSE
+                </span>
+
+                <h3 id="rootCause">
+                    Bank Posting Delay
+                </h3>
+
+                <p id="severityText">
+                    Medium severity
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="determination-card confidence-card">
+
+            <div class="confidence-visual">
+
+                <svg
+                    class="confidence-ring"
+                    viewBox="0 0 100 100"
+                >
+
+                    <circle
+                        class="confidence-track"
+                        cx="50"
+                        cy="50"
+                        r="42"
+                    ></circle>
+
+                    <circle
+                        class="confidence-progress"
+                        cx="50"
+                        cy="50"
+                        r="42"
+                    ></circle>
+
+                </svg>
+
+                <div class="confidence-number">
+
+                    <strong id="confidenceScore">
+                        94
+                    </strong>
+
+                    <span>%</span>
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <span class="section-label">
+                    EVIDENCE CONFIDENCE
+                </span>
+
+                <h3>
+                    Strong evidence
+                </h3>
+
+                <p>
+                    Based on verified source matches.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- SOURCE STATUS -->
+
+    <section class="source-status-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-label">
+                    SOURCE TRACE
+                </span>
+
+                <h3>
+                    Multi-Source Status
+                </h3>
+
+            </div>
+
+            <span class="verified-label">
+
+                <i data-lucide="shield-check"></i>
+
+                Backend verified
+
+            </span>
+
+        </div>
+
+
+        <div class="source-grid">
+
+
+            <!-- GATEWAY -->
+
+            <div class="source-card">
+
+                <div class="source-card-top">
+
+                    <div class="source-icon gateway">
+                        <i data-lucide="radio-tower"></i>
+                    </div>
+
+                    <span class="source-state success">
+                        VERIFIED
+                    </span>
+
+                </div>
+
+                <span class="source-name">
+                    Gateway
+                </span>
+
+                <strong id="gatewayStatus">
+                    Captured
+                </strong>
+
+                <div class="source-detail">
+
+                    <span>Amount</span>
+
+                    <strong id="gatewayAmount">
+                        ₹12,500
+                    </strong>
+
+                </div>
+
+                <div class="source-detail">
+
+                    <span>Timestamp</span>
+
+                    <strong id="gatewayTimestamp">
+                        10:31:00
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- BANK -->
+
+            <div class="source-card">
+
+                <div class="source-card-top">
+
+                    <div class="source-icon bank">
+                        <i data-lucide="building-2"></i>
+                    </div>
+
+                    <span class="source-state warning">
+                        PENDING
+                    </span>
+
+                </div>
+
+                <span class="source-name">
+                    Bank
+                </span>
+
+                <strong id="bankStatus">
+                    Pending
+                </strong>
+
+                <div class="source-detail">
+
+                    <span>UTR</span>
+
+                    <strong id="bankUtr">
+                        AXIS123456
+                    </strong>
+
+                </div>
+
+                <div class="source-detail">
+
+                    <span>Credit</span>
+
+                    <strong class="unavailable">
+                        Unavailable
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- LEDGER -->
+
+            <div class="source-card">
+
+                <div class="source-card-top">
+
+                    <div class="source-icon ledger">
+                        <i data-lucide="book-open-check"></i>
+                    </div>
+
+                    <span class="source-state warning">
+                        PENDING
+                    </span>
+
+                </div>
+
+                <span class="source-name">
+                    Ledger
+                </span>
+
+                <strong id="ledgerStatus">
+                    Pending
+                </strong>
+
+                <div class="source-detail">
+
+                    <span>Amount</span>
+
+                    <strong id="ledgerAmount">
+                        ₹12,500
+                    </strong>
+
+                </div>
+
+                <div class="source-detail">
+
+                    <span>Posted</span>
+
+                    <strong class="unavailable">
+                        Unavailable
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- TIMELINE -->
+
+    <section class="investigation-panel timeline-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <span class="section-label">
+                    TRANSACTION JOURNEY
+                </span>
+
+                <h3>
+                    Settlement Timeline
+                </h3>
+
+            </div>
+
+            <i data-lucide="route"></i>
+
+        </div>
+
+
+        <div class="timeline" id="investigationTimeline">
+
+            <!-- Timeline populated from backend result -->
+
+        </div>
+
+    </section>
+
+
+    <!-- EVIDENCE + EXCEPTIONS -->
+
+    <section class="evidence-exception-grid">
+
+
+        <!-- EVIDENCE -->
+
+        <div class="investigation-panel evidence-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span class="section-label">
+                        PROOF
+                    </span>
+
+                    <h3>
+                        Evidence
+                    </h3>
+
+                </div>
+
+                <div class="proof-badge">
+
+                    <i data-lucide="badge-check"></i>
+
+                    Verified
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="evidence-list"
+                id="evidenceList"
+            >
+                <!-- Evidence populated from backend -->
+            </div>
+
+        </div>
+
+
+        <!-- EXCEPTIONS -->
+
+        <div class="investigation-panel exceptions-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span class="section-label">
+                        ATTENTION REQUIRED
+                    </span>
+
+                    <h3>
+                        Exceptions
+                    </h3>
+
+                </div>
+
+                <div class="exception-count" id="exceptionCount">
+                    1
+                </div>
+
+            </div>
+
+
+            <div
+                class="exception-list"
+                id="exceptionList"
+            >
+                <!-- Exceptions populated from backend -->
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- AI EXPLANATION -->
+
+    <section class="investigation-panel ai-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <span class="section-label">
+                    GROUNDED AI
+                </span>
+
+                <h3>
+                    Investigation Explanation
+                </h3>
+
+            </div>
+
+            <div class="ai-badge">
+
+                <i data-lucide="sparkles"></i>
+
+                Evidence Grounded
+
+            </div>
+
+        </div>
+
+
+        <div class="ai-explanation">
+
+            <div class="ai-avatar">
+                N
+            </div>
+
+            <div>
+
+                <p id="aiExplanation">
+                    The transaction was successfully captured by the gateway
+                    and the settlement was processed. The bank transfer has
+                    been initiated and the UTR matches the settlement record,
+                    but the bank credit timestamp is currently unavailable.
+                    This indicates that the settlement is pending bank posting
+                    rather than confirmed as failed.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- RECOMMENDED ACTION -->
+
+    <section class="next-action-card">
+
+        <div class="next-action-icon">
+
+            <i data-lucide="arrow-right-circle"></i>
+
+        </div>
+
+        <div class="next-action-content">
+
+            <span class="section-label">
+                RECOMMENDED NEXT ACTION
+            </span>
+
+            <h3 id="recommendedAction">
+                Monitor the bank settlement using UTR AXIS123456.
+            </h3>
+
+        </div>
+
+        <button class="action-button">
+
+            <i data-lucide="copy"></i>
+
+            Copy Action
+
+        </button>
+
+    </section>
+
+
+    <!-- CUSTOMER + Q&A + WHAT IF -->
+
+    <section class="investigation-tools-grid">
+
+
+        <!-- CUSTOMER REPLY -->
+
+        <div class="investigation-panel tool-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span class="section-label">
+                        CUSTOMER SUPPORT
+                    </span>
+
+                    <h3>
+                        Customer Reply
+                    </h3>
+
+                </div>
+
+                <i data-lucide="message-square-text"></i>
+
+            </div>
+
+
+            <div class="customer-reply">
+
+                <p id="customerReply">
+
+                    Your payment has been successfully processed and the
+                    settlement is currently being posted by the bank.
+                    We are monitoring the settlement using the provided UTR
+                    and will update you once the bank credit is confirmed.
+
+                </p>
+
+            </div>
+
+
+            <button class="secondary-button full-width">
+
+                <i data-lucide="copy"></i>
+
+                Copy Reply
+
+            </button>
+
+        </div>
+
+
+        <!-- FOLLOW UP -->
+
+        <div class="investigation-panel tool-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span class="section-label">
+                        SUPPORT ASSISTANT
+                    </span>
+
+                    <h3>
+                        Follow-up Q&A
+                    </h3>
+
+                </div>
+
+                <i data-lucide="messages-square"></i>
+
+            </div>
+
+
+            <div class="qa-answer">
+
+                <span>
+                    Ask about this transaction
+                </span>
+
+                <p>
+                    Questions will be answered using the verified
+                    investigation evidence.
+                </p>
+
+            </div>
+
+
+            <div class="qa-input">
+
+                <input
+                    type="text"
+                    id="questionInput"
+                    placeholder="Why is this settlement delayed?"
+                >
+
+                <button
+                    class="icon-button"
+                    id="askQuestionButton"
+                >
+
+                    <i data-lucide="arrow-up"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- WHAT IF -->
+
+        <div class="investigation-panel tool-panel what-if-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span class="section-label">
+                        INVESTIGATOR
+                    </span>
+
+                    <h3>
+                        Settlement What-If
+                    </h3>
+
+                </div>
+
+                <i data-lucide="git-compare-arrows"></i>
+
+            </div>
+
+
+            <div class="what-if-content">
+
+                <p>
+                    Explore a hypothetical settlement scenario without
+                    changing the actual transaction.
+                </p>
+
+
+                <div class="what-if-divider">
+
+                    <span>ACTUAL RESULT</span>
+
+                    <strong>
+                        PENDING
+                    </strong>
+
+                </div>
+
+
+                <button class="primary-button full-width">
+
+                    <i data-lucide="wand-sparkles"></i>
+
+                    Run What-If
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
         </main>
 
     </div>
