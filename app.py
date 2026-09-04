@@ -8,7 +8,7 @@ Endpoints:
 - POST /api/ask          -> follow-up Q&A on a specific transaction, grounded in the same investigation data
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import sys
 import os
@@ -117,6 +117,11 @@ def build_investigation_result(transaction_id):
         "exceptions": reconciliation["exceptions"],
         "recommended_action": reconciliation["recommended_action"]
     }
+
+
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 
 @app.route("/api/health", methods=["GET"])
