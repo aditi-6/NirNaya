@@ -1275,3 +1275,117 @@ a {
     }
 
 }
+/* =========================================================
+   HEADER / NAVIGATION POLISH
+========================================================= */
+
+.nav-item {
+    position: relative;
+    overflow: hidden;
+}
+
+
+.nav-item::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 50%;
+
+    width: 2px;
+    height: 0;
+
+    transform: translateY(-50%);
+
+    border-radius: 4px;
+
+    background: var(--accent-green);
+
+    transition: height 0.2s ease;
+}
+
+
+.nav-item:hover::after {
+    height: 18px;
+}
+
+
+.nav-item.active::after {
+    height: 22px;
+}
+
+
+/* =========================================================
+   TOPBAR REFINEMENT
+========================================================= */
+
+.topbar {
+    box-shadow:
+        0 1px 0 rgba(246, 241, 235, 0.02);
+}
+
+
+.icon-button {
+    position: relative;
+}
+
+
+.icon-button:active {
+    transform: scale(0.96);
+}
+
+
+/* =========================================================
+   BRAND REFINEMENT
+========================================================= */
+
+.brand-mark {
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+.brand-mark::before {
+    content: "";
+
+    position: absolute;
+
+    width: 24px;
+    height: 24px;
+
+    border: 1px solid rgba(139, 190, 61, 0.25);
+
+    border-radius: 50%;
+}
+
+
+.brand-mark svg {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* =========================================================
+   PAGE TRANSITION
+========================================================= */
+
+.page-content {
+    animation: pageEnter 0.35s ease both;
+}
+
+
+@keyframes pageEnter {
+
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
