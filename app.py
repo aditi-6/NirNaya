@@ -1,9 +1,11 @@
 """
 app.py
 Flask API for NirNaya.
-Exposes /api/trace which returns the deterministic reconciliation result.
-AI explanation is plugged in later — for now it returns a placeholder so
-frontend can build against a complete response shape.
+
+Endpoints:
+- POST /api/investigate  -> nested contract shape (settlement/gateway/bank/ledger/determination) + AI explanation
+- POST /api/trace        -> flat shape (for frontend teammate's original contract) + AI explanation
+- POST /api/ask          -> follow-up Q&A on a specific transaction, grounded in the same investigation data
 """
 
 from flask import Flask, request, jsonify
@@ -12,7 +14,6 @@ import sys
 import os
 import math
 
-# Make sure engine/ is importable
 sys.path.append(os.path.join(os.path.dirname(__file__), "engine"))
 
 from engine.tracer import trace_transaction
@@ -20,7 +21,7 @@ from engine.reconciler import reconcile
 from AI.explainer import explain_investigation
 
 app = Flask(__name__)
-CORS(app)  # allow frontend (different port) to call this API
+CORS(app)
 
 
 def clean_nans(obj):
@@ -34,30 +35,19 @@ def clean_nans(obj):
     return obj
 
 
-@app.route("/api/health", methods=["GET"])
-def health():
-    return jsonify({"status": "ok", "service": "NirNaya backend"})
-
-
-@app.route("/api/investigate", methods=["POST"])
-def investigate():
+def build_investigation_result(transaction_id):
     """
-    Same underlying logic as /api/trace, reshaped into the nested
-    investigation_result.json contract shape for the AI/frontend layers.
-    NOTE: 'timeline' is intentionally omitted for now (not enough time to
-    build a reliable event sequence) — do not build against a timeline field.
+    The ONE place that builds the nested investigation_result.json shape.
+    Every endpoint (investigate, trace, ask) should reuse this instead of
+    reimplementing the field-mapping logic — that's what caused the bug
+    where /api/ask pulled amount/gateway/bank/ledger from reconcile()
+    (which never contained them) and got None for everything.
     """
-    data = request.get_json(silent=True) or {}
-    transaction_id = data.get("transaction_id", "").strip()
-
-    if not transaction_id:
-        return jsonify({"error": "transaction_id is required"}), 400
-
     trace_result = trace_transaction(transaction_id)
     reconciliation = reconcile(trace_result)
 
     if not trace_result.get("found"):
-        return jsonify(clean_nans({
+        return {
             "transaction_id": transaction_id,
             "amount": None,
             "currency": None,
@@ -74,14 +64,13 @@ def investigate():
             "evidence": reconciliation["evidence"],
             "exceptions": reconciliation["exceptions"],
             "recommended_action": reconciliation["recommended_action"]
-        }))
+        }
 
     gateway = trace_result["gateway"]
     bank_records = trace_result["bank_records"]
     bank = bank_records[0] if bank_records else None
     ledger = trace_result["ledger"]
 
-    # Map internal classification -> user-facing status
     status_map = {
         "SUCCESS": "SETTLED",
         "BANK_POSTING_DELAY": "PENDING",
@@ -93,7 +82,7 @@ def investigate():
     }
     user_status = status_map.get(reconciliation["classification"], "EXCEPTION")
 
-    response = {
+    return {
         "transaction_id": transaction_id,
         "amount": gateway.get("amount"),
         "currency": gateway.get("currency"),
@@ -129,11 +118,35 @@ def investigate():
         "recommended_action": reconciliation["recommended_action"]
     }
 
-    return jsonify(clean_nans(response))
+
+@app.route("/api/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok", "service": "NirNaya backend"})
+
+
+@app.route("/api/investigate", methods=["POST"])
+def investigate():
+    """
+    Nested contract shape for AI/frontend, per investigation_result.json.
+    NOTE: 'timeline' is intentionally omitted (not enough time to build a
+    reliable event sequence) — don't build against a timeline field.
+    """
+    data = request.get_json(silent=True) or {}
+    transaction_id = data.get("transaction_id", "").strip()
+    question = data.get("question")
+
+    if not transaction_id:
+        return jsonify({"error": "transaction_id is required"}), 400
+
+    result = build_investigation_result(transaction_id)
+    result["ai"] = explain_investigation(clean_nans(result), question)
+
+    return jsonify(clean_nans(result))
 
 
 @app.route("/api/trace", methods=["POST"])
 def trace():
+    """Flat shape — kept for the frontend teammate's original contract."""
     data = request.get_json(silent=True) or {}
     transaction_id = data.get("transaction_id", "").strip()
 
@@ -143,16 +156,9 @@ def trace():
     trace_result = trace_transaction(transaction_id)
     reconciliation = reconcile(trace_result)
 
-    # ---- Placeholder AI explanation ----
-    # Person 2 (AI) will replace this block by importing their own
-    # ai/explainer.py and calling it with `reconciliation` as input.
-    # Until that's wired in, we return a clearly-labeled placeholder so
-    # the frontend can already build against the final response shape.
-    ai_explanation = {
-        "summary": f"[AI explanation pending] Classification: {reconciliation['classification']}",
-        "explanation": "AI layer not yet connected. This is a placeholder.",
-        "customer_reply": None
-    }
+    # Reuse the same nested builder just to feed the AI consistently
+    nested_for_ai = build_investigation_result(transaction_id)
+    ai_explanation = explain_investigation(clean_nans(nested_for_ai))
 
     response = {
         "transaction_id": transaction_id,
@@ -170,47 +176,25 @@ def trace():
     }
 
     return jsonify(clean_nans(response))
+
+
 @app.route("/api/ask", methods=["POST"])
 def ask():
-    data = request.get_json()
-
+    """Follow-up Q&A about a specific transaction, grounded in its investigation result."""
+    data = request.get_json(silent=True) or {}
     transaction_id = data.get("transaction_id")
     question = data.get("question")
 
     if not transaction_id or not question:
-        return jsonify({
-            "error": "transaction_id and question are required"
-        }), 400
+        return jsonify({"error": "transaction_id and question are required"}), 400
 
     try:
-        traced = trace_transaction(transaction_id)
+        investigation_result = build_investigation_result(transaction_id)
 
-        if traced is None:
-            return jsonify({
-                "error": "Transaction not found"
-            }), 404
+        if investigation_result["determination"]["root_cause"] == "TRANSACTION_NOT_FOUND":
+            return jsonify({"error": "Transaction not found"}), 404
 
-        reconciliation = reconcile(traced)
-
-        investigation_result = {
-            "transaction_id": transaction_id,
-            "amount": reconciliation.get("amount"),
-            "currency": reconciliation.get("currency", "INR"),
-            "settlement": reconciliation.get("settlement"),
-            "gateway": reconciliation.get("gateway"),
-            "bank": reconciliation.get("bank"),
-            "ledger": reconciliation.get("ledger"),
-            "determination": reconciliation.get("determination"),
-            "confidence": reconciliation.get("confidence"),
-            "evidence": reconciliation.get("evidence"),
-            "exceptions": reconciliation.get("exceptions"),
-            "recommended_action": reconciliation.get("recommended_action")
-        }
-
-        ai_response = explain_investigation(
-            investigation_result,
-            question
-        )
+        ai_response = explain_investigation(clean_nans(investigation_result), question)
 
         if not ai_response.get("follow_up_answer"):
             ai_response["follow_up_answer"] = ai_response.get("explanation")
@@ -218,9 +202,8 @@ def ask():
         return jsonify(ai_response)
 
     except Exception as e:
-        return jsonify({
-            "error": str(e)
-        }), 500
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
