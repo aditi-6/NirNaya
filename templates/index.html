@@ -140,12 +140,13 @@
                     </button>
 
                     <button
-                        class="icon-button notification-button"
-                        aria-label="Notifications"
-                    >
-                        <i data-lucide="bell"></i>
-                        <span class="notification-dot"></span>
-                    </button>
+    class="icon-button notification-button"
+    data-notifications
+    aria-label="Notifications"
+>
+    <i data-lucide="bell"></i>
+    <span class="notification-dot"></span>
+</button>
 
 
                     <div class="operator-profile">
@@ -255,21 +256,21 @@
 
                     <div class="quick-searches">
 
-                        <span>Quick search:</span>
+    <span>Quick search:</span>
 
-                        <button type="button">
-                            TXN-10001
-                        </button>
+    <button type="button">
+        TXN_10001
+    </button>
 
-                        <button type="button">
-                            TXN-10002
-                        </button>
+    <button type="button">
+        TXN_10021
+    </button>
 
-                        <button type="button">
-                            AXIS123456
-                        </button>
+    <button type="button">
+        TXN_10029
+    </button>
 
-                    </div>
+</div>
 
                 </section>
 
@@ -289,8 +290,8 @@
                                 Settlement Health
                             </h3>
                         </div>
+                        <button class="text-button" id="viewHealthDetails" type="button">
 
-                        <button class="text-button">
                             View details
                             <i data-lucide="arrow-up-right"></i>
                         </button>
@@ -542,12 +543,404 @@
                 </section>
 
             </div>
+            <!-- =====================================================
+     SETTLEMENT HEALTH PAGE
+====================================================== -->
+
+<div class="page-content" id="healthPage">
+
+    <section class="page-intro">
+
+        <div>
+            <span class="eyebrow">
+                OPERATIONS MONITORING
+            </span>
+
+            <h2>
+                Settlement Health
+            </h2>
+
+            <p>
+                Monitor settlement performance, transaction outcomes
+                and operational health across connected sources.
+            </p>
+        </div>
+
+    </section>
+
+
+    <section class="health-grid">
+
+        <div class="metric-card">
+            <div class="metric-top">
+                <span>Total Transactions</span>
+                <i data-lucide="layers"></i>
+            </div>
+
+            <strong>2,480</strong>
+
+            <small>
+                Transactions processed today
+            </small>
+        </div>
+
+
+        <div class="metric-card settled">
+            <div class="metric-top">
+                <span>Settled</span>
+                <i data-lucide="check-circle-2"></i>
+            </div>
+
+            <strong>2,301</strong>
+
+            <small>
+                Successfully settled
+            </small>
+        </div>
+
+
+        <div class="metric-card pending">
+            <div class="metric-top">
+                <span>Pending</span>
+                <i data-lucide="clock-3"></i>
+            </div>
+
+            <strong>91</strong>
+
+            <small>
+                Awaiting settlement
+            </small>
+        </div>
+
+
+        <div class="metric-card failed">
+            <div class="metric-top">
+                <span>Failed</span>
+                <i data-lucide="x-circle"></i>
+            </div>
+
+            <strong>38</strong>
+
+            <small>
+                Failed transactions
+            </small>
+        </div>
+
+    </section>
+
+
+    <section class="dashboard-panel">
+
+        <div class="panel-heading">
+
+            <div>
+                <span class="section-label">
+                    SYSTEM STATUS
+                </span>
+
+                <h3>
+                    Settlement Performance
+                </h3>
+            </div>
+
+            <i data-lucide="activity"></i>
+
+        </div>
+
+
+        <div class="health-score">
+
+            <div class="score-circle">
+                <strong>87</strong>
+                <span>/100</span>
+            </div>
+
+            <div class="score-description">
+
+                <strong>Healthy</strong>
+
+                <p>
+                    Settlement operations are currently performing
+                    within expected operational thresholds.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- =====================================================
+     ALERTS PAGE
+====================================================== -->
+
+<div class="page-content" id="alertsPage">
+
+    <section class="page-intro">
+
+        <div>
+            <span class="eyebrow">
+                OPERATIONAL ATTENTION
+            </span>
+
+            <h2>
+                Alerts
+            </h2>
+
+            <p>
+                Review active settlement issues that require
+                operational attention.
+            </p>
+        </div>
+
+    </section>
+
+
+    <section class="dashboard-panel">
+
+        <div class="panel-heading">
+
+    <div>
+        <span class="section-label">
+            ATTENTION
+        </span>
+
+        <h3>
+            Active Alerts
+        </h3>
+    </div>
+
+    <button
+        class="text-button"
+        id="viewAlerts"
+        type="button"
+    >
+        View alerts
+        <i data-lucide="arrow-up-right"></i>
+    </button>
+
+</div>
+
+
+        <div class="alert-preview">
+
+            <div class="alert-icon">
+                <i data-lucide="triangle-alert"></i>
+            </div>
+
+            <div>
+                <strong>
+                    Bank delays detected
+                </strong>
+
+                <p>
+                    37 transactions are showing delayed bank posting.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="alert-preview">
+
+            <div class="alert-icon">
+                <i data-lucide="clock-3"></i>
+            </div>
+
+            <div>
+                <strong>
+                    Pending settlements
+                </strong>
+
+                <p>
+                    91 transactions are currently awaiting settlement.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="alert-preview">
+
+            <div class="alert-icon">
+                <i data-lucide="database"></i>
+            </div>
+
+            <div>
+                <strong>
+                    Ledger synchronization
+                </strong>
+
+                <p>
+                    Some transactions are waiting for ledger confirmation.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- =====================================================
+     HISTORY PAGE
+====================================================== -->
+
+<div class="page-content" id="historyPage">
+
+    <section class="page-intro">
+
+        <div>
+            <span class="eyebrow">
+                INVESTIGATION HISTORY
+            </span>
+
+            <h2>
+                History
+            </h2>
+
+            <p>
+                Review previously investigated transactions and
+                their settlement outcomes.
+            </p>
+        </div>
+
+    </section>
+
+
+    <section class="dashboard-panel">
+
+        <div class="panel-heading">
+
+            <div>
+                <span class="section-label">
+                    RECENT INVESTIGATIONS
+                </span>
+
+                <h3>
+                    Investigation History
+                </h3>
+            </div>
+
+            <i data-lucide="history"></i>
+
+        </div>
+
+
+        <div class="root-cause-list">
+
+            <div class="root-cause-row">
+                <div class="cause-info">
+                    <span class="cause-indicator"></span>
+                    <strong>TXN-10001</strong>
+                </div>
+
+                <span>SETTLED</span>
+            </div>
+
+
+            <div class="root-cause-row">
+                <div class="cause-info">
+                    <span class="cause-indicator"></span>
+                    <strong>TXN-10021</strong>
+                </div>
+
+                <span>PENDING</span>
+            </div>
+
+
+            <div class="root-cause-row">
+                <div class="cause-info">
+                    <span class="cause-indicator"></span>
+                    <strong>TXN-10029</strong>
+                </div>
+
+                <span>FAILED</span>
+            </div>
+
+
+            <div class="root-cause-row">
+                <div class="cause-info">
+                    <span class="cause-indicator"></span>
+                    <strong>TXN-10049</strong>
+                </div>
+
+                <span>EXCEPTION</span>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
 
         <!-- =====================================================
      INVESTIGATION PAGE
 ====================================================== -->
 
 <div class="page-content investigation-page" id="investigationPage">
+    <!-- INVESTIGATION SEARCH -->
+
+<section class="investigation-card investigation-search-card">
+
+    <div class="investigation-heading">
+
+        <div class="heading-icon">
+            <i data-lucide="search"></i>
+        </div>
+
+        <div>
+            <span class="section-label">
+                INVESTIGATE TRANSACTION
+            </span>
+
+            <h3>
+                Search Transaction
+            </h3>
+
+            <p>
+                Enter a Transaction ID to load its verified investigation.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="investigation-form">
+
+        <div class="search-wrapper">
+
+            <i data-lucide="search"></i>
+
+            <input
+                type="text"
+                id="investigationTransactionInput"
+                placeholder="Enter Transaction ID e.g. TXN_10021"
+                autocomplete="off"
+            >
+
+        </div>
+
+
+        <button
+            class="primary-button"
+            id="investigationSearchButton"
+            type="button"
+        >
+
+            <i data-lucide="search"></i>
+
+            Investigate
+
+        </button>
+
+    </div>
+
+</section>
 
     <!-- PAGE HEADER -->
 
@@ -1104,13 +1497,17 @@
 
         </div>
 
-        <button class="action-button">
+        <button
+    class="action-button"
+    type="button"
+    data-copy-target="recommendedAction"
+>
 
-            <i data-lucide="copy"></i>
+    <i data-lucide="copy"></i>
 
-            Copy Action
+    Copy Action
 
-        </button>
+</button>
 
     </section>
 
@@ -1157,13 +1554,17 @@
             </div>
 
 
-            <button class="secondary-button full-width">
+            <button
+    class="secondary-button full-width"
+    type="button"
+    data-copy-target="customerReply"
+>
 
-                <i data-lucide="copy"></i>
+    <i data-lucide="copy"></i>
 
-                Copy Reply
+    Copy Reply
 
-            </button>
+</button>
 
         </div>
 
@@ -1193,16 +1594,16 @@
 
             <div class="qa-answer">
 
-                <span>
-                    Ask about this transaction
-                </span>
+    <span>
+        AI Investigation Answer
+    </span>
 
-                <p>
-                    Questions will be answered using the verified
-                    investigation evidence.
-                </p>
+    <p id="qaAnswer">
+        Questions will be answered using the verified
+        investigation evidence.
+    </p>
 
-            </div>
+</div>
 
 
             <div class="qa-input">
@@ -1284,6 +1685,9 @@
     </section>
 
 </div>
+    
+
+
         </main>
 
     </div>

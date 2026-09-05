@@ -2599,3 +2599,295 @@ a {
     }
 
 }
+/* =========================================================
+   LIGHT MODE
+========================================================= */
+
+body.light-mode {
+
+    --bg-primary: #f6f3ee;
+    --bg-secondary: #e9e5dc;
+    --bg-tertiary: #ddd8ce;
+
+    --surface: #ffffff;
+    --surface-hover: #f1eee8;
+
+    --border: rgba(27, 47, 54, 0.12);
+    --border-strong: rgba(27, 47, 54, 0.18);
+
+    --text-primary: #1b2f36;
+    --text-secondary: #526268;
+    --text-muted: #7b878b;
+
+    --accent-green: #6f9f2f;
+    --accent-green-soft: rgba(111, 159, 47, 0.12);
+
+    --accent-gold: #8b7443;
+    --accent-gold-soft: rgba(139, 116, 67, 0.12);
+
+    --status-success: #6f9f2f;
+    --status-warning: #b88728;
+    --status-danger: #c45d59;
+
+    --shadow-card:
+        0 10px 30px rgba(27, 47, 54, 0.08);
+}
+
+
+/* =========================================================
+   LIGHT MODE - BODY
+========================================================= */
+
+body.light-mode {
+
+    background:
+        radial-gradient(
+            circle at 80% 0%,
+            rgba(111, 159, 47, 0.08),
+            transparent 30%
+        ),
+        var(--bg-primary);
+
+    color: var(--text-primary);
+}
+
+
+/* =========================================================
+   LIGHT MODE - SIDEBAR
+========================================================= */
+
+body.light-mode .sidebar {
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #f1eee8 100%
+        );
+
+    border-right-color: var(--border);
+}
+
+
+/* =========================================================
+   LIGHT MODE - TOPBAR
+========================================================= */
+
+body.light-mode .topbar {
+
+    background: rgba(246, 243, 238, 0.90);
+
+    border-bottom-color: var(--border);
+
+    box-shadow:
+        0 1px 0 rgba(27, 47, 54, 0.04);
+}
+
+
+/* =========================================================
+   LIGHT MODE - NAVIGATION
+========================================================= */
+
+body.light-mode .nav-item:hover {
+
+    background: rgba(27, 47, 54, 0.05);
+
+    color: var(--text-primary);
+}
+
+
+body.light-mode .nav-item.active {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(111, 159, 47, 0.14),
+            rgba(111, 159, 47, 0.04)
+        );
+
+    color: var(--text-primary);
+}
+
+
+/* =========================================================
+   LIGHT MODE - ICON BUTTONS
+========================================================= */
+
+body.light-mode .icon-button {
+
+    background: rgba(27, 47, 54, 0.035);
+
+    color: var(--text-secondary);
+}
+
+
+body.light-mode .icon-button:hover {
+
+    background: rgba(27, 47, 54, 0.07);
+
+    color: var(--text-primary);
+
+    border-color: var(--border-strong);
+}
+
+
+/* =========================================================
+   LIGHT MODE - INVESTIGATION CARD
+========================================================= */
+
+body.light-mode .investigation-card {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f0ede6
+        );
+}
+
+
+/* =========================================================
+   LIGHT MODE - SEARCH INPUTS
+========================================================= */
+
+body.light-mode .search-wrapper input {
+
+    background: rgba(255, 255, 255, 0.85);
+
+    color: var(--text-primary);
+}
+
+
+body.light-mode .qa-input input {
+
+    background: rgba(255, 255, 255, 0.85);
+
+    color: var(--text-primary);
+}
+
+
+/* =========================================================
+   LIGHT MODE - BUTTONS
+========================================================= */
+
+body.light-mode .secondary-button:hover {
+
+    background: rgba(27, 47, 54, 0.05);
+
+    color: var(--text-primary);
+}
+
+
+body.light-mode .action-button {
+
+    background: rgba(27, 47, 54, 0.035);
+
+    color: var(--text-secondary);
+}
+
+
+body.light-mode .action-button:hover {
+
+    color: var(--text-primary);
+
+    background: rgba(27, 47, 54, 0.07);
+}
+
+
+/* =========================================================
+   LIGHT MODE - AI PANEL
+========================================================= */
+
+body.light-mode .ai-panel {
+
+    background:
+        linear-gradient(
+            135deg,
+            #f1f4ee,
+            #ffffff
+        );
+}
+
+
+/* =========================================================
+   LIGHT MODE - NEXT ACTION
+========================================================= */
+
+body.light-mode .next-action-card {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(111, 159, 47, 0.10),
+            rgba(111, 159, 47, 0.025)
+        );
+}
+
+
+/* =========================================================
+   LIGHT MODE - WHAT IF / Q&A
+========================================================= */
+
+body.light-mode .what-if-divider {
+
+    background: rgba(27, 47, 54, 0.025);
+}
+
+
+/* =========================================================
+   LIGHT MODE - TIMELINE
+========================================================= */
+
+body.light-mode .timeline::before {
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(111, 159, 47, 0.45),
+            rgba(27, 47, 54, 0.10)
+        );
+}
+
+
+/* =========================================================
+   LIGHT MODE - QUICK SEARCH
+========================================================= */
+
+body.light-mode .quick-searches button:hover {
+
+    background: rgba(111, 159, 47, 0.06);
+}
+
+
+/* =========================================================
+   LIGHT MODE - SMOOTH TRANSITION
+========================================================= */
+
+body,
+.sidebar,
+.topbar,
+.investigation-card,
+.dashboard-panel,
+.metric-card,
+.investigation-panel,
+.source-card,
+.determination-card,
+.search-wrapper input,
+.qa-input input,
+.icon-button,
+.action-button {
+
+    transition:
+        background 0.25s ease,
+        background-color 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+/* =========================================================
+   ADDITIONAL NAVIGATION PAGES
+========================================================= */
+
+.extra-page {
+    display: none;
+}
