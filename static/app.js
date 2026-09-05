@@ -1,34 +1,39 @@
 /* =========================================================
-   NirNaya
-   Evidence-First Settlement Intelligence
-   Frontend Application
+   NIRNAYA FRONTEND
+   Connected to Flask Backend API
 ========================================================= */
 
+const API_BASE_URL = "";
 
 /* =========================================================
-   INITIALIZATION
+   DOM READY
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
     initializeIcons();
-
-    initializeThemeToggle();
-
+    initializeTheme();
     initializeNavigation();
-
     initializeQuickSearch();
+    initializeInvestigation();
+    initializeHealthDetails();
+    initializeHistoryTransactions();
+    initializeAlerts();
+    initializeQA();
+    initializeCopyActions();
+    initializeNotifications();
+    initializeWhatIf();
 
 });
 
 
 /* =========================================================
-   ICONS
+   LUCIDE ICONS
 ========================================================= */
 
 function initializeIcons() {
 
-    if (window.lucide) {
+    if (typeof lucide !== "undefined") {
         lucide.createIcons();
     }
 
@@ -36,10 +41,10 @@ function initializeIcons() {
 
 
 /* =========================================================
-   THEME
+   THEME TOGGLE
 ========================================================= */
 
-function initializeThemeToggle() {
+function initializeTheme() {
 
     const themeToggle =
         document.getElementById("themeToggle");
@@ -48,68 +53,31 @@ function initializeThemeToggle() {
         return;
     }
 
+    const savedTheme =
+        localStorage.getItem("nirnaya-theme");
+
+    if (savedTheme === "light") {
+        document.body.classList.add("light-mode");
+    }
 
     themeToggle.addEventListener("click", () => {
 
         document.body.classList.toggle("light-mode");
 
-        const isLightMode =
+        const isLight =
             document.body.classList.contains("light-mode");
-
 
         localStorage.setItem(
             "nirnaya-theme",
-            isLightMode ? "light" : "dark"
+            isLight ? "light" : "dark"
         );
 
-
-        updateThemeIcon(isLightMode);
+        initializeIcons();
 
     });
 
-
-    const savedTheme =
-        localStorage.getItem("nirnaya-theme");
-
-
-    if (savedTheme === "light") {
-
-        document.body.classList.add("light-mode");
-
-        updateThemeIcon(true);
-
-    }
-
 }
 
-
-/* =========================================================
-   THEME ICON
-========================================================= */
-
-function updateThemeIcon(isLightMode) {
-
-    const themeToggle =
-        document.getElementById("themeToggle");
-
-    if (!themeToggle) {
-        return;
-    }
-
-
-    themeToggle.innerHTML = isLightMode
-        ? '<i data-lucide="moon"></i>'
-        : '<i data-lucide="sun"></i>';
-
-
-    initializeIcons();
-
-}
-
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
 
 /* =========================================================
    NAVIGATION
@@ -120,101 +88,164 @@ function initializeNavigation() {
     const navItems =
         document.querySelectorAll(".nav-item");
 
-    const overviewPage =
-        document.getElementById("overviewPage");
+    const pages = {
 
-    const investigationPage =
-        document.getElementById("investigationPage");
+        overview:
+            document.getElementById("overviewPage"),
 
-    const backToOverview =
-        document.getElementById("backToOverview");
+        investigation:
+            document.getElementById("investigationPage"),
+
+        health:
+            document.getElementById("healthPage"),
+
+        alerts:
+            document.getElementById("alertsPage"),
+
+        history:
+            document.getElementById("historyPage")
+
+    };
 
 
-    navItems.forEach((item) => {
+    function showPage(pageName) {
 
-        item.addEventListener("click", (event) => {
+        Object.values(pages).forEach(page => {
+
+            if (page) {
+                page.style.display = "none";
+            }
+
+        });
+
+
+        if (pages[pageName]) {
+            pages[pageName].style.display = "block";
+        }
+
+
+        navItems.forEach(item => {
+
+            item.classList.toggle(
+                "active",
+                item.dataset.page === pageName
+            );
+
+        });
+
+
+        updateBreadcrumb(pageName);
+
+        initializeIcons();
+
+    }
+
+
+    function updateBreadcrumb(pageName) {
+
+        const breadcrumbTitle =
+            document.querySelector(".breadcrumb strong");
+
+        const titles = {
+
+            overview: "Overview",
+
+            investigation: "Investigate",
+
+            health: "Settlement Health",
+
+            alerts: "Alerts",
+
+            history: "History"
+
+        };
+
+
+        if (breadcrumbTitle) {
+
+            breadcrumbTitle.textContent =
+                titles[pageName] || "Overview";
+
+        }
+
+    }
+
+
+    navItems.forEach(item => {
+
+        item.addEventListener("click", function(event) {
 
             event.preventDefault();
 
-            const page =
-                item.dataset.page;
+            const pageName =
+                this.dataset.page;
 
-
-            navItems.forEach((navItem) => {
-                navItem.classList.remove("active");
-            });
-
-            item.classList.add("active");
-
-
-            if (page === "investigation") {
-
-                if (overviewPage) {
-                    overviewPage.style.display = "none";
-                }
-
-                if (investigationPage) {
-                    investigationPage.style.display = "block";
-                }
-
-                loadInvestigation();
-
-            } else {
-
-                if (investigationPage) {
-                    investigationPage.style.display = "none";
-                }
-
-                if (overviewPage) {
-                    overviewPage.style.display = "block";
-                }
-
-            }
+            showPage(pageName);
 
         });
 
     });
 
 
+    const backToOverview =
+        document.getElementById("backToOverview");
+
+
     if (backToOverview) {
 
         backToOverview.addEventListener("click", () => {
 
-            if (investigationPage) {
-                investigationPage.style.display = "none";
-            }
-
-            if (overviewPage) {
-                overviewPage.style.display = "block";
-            }
-
-
-            navItems.forEach((item) => {
-
-                item.classList.remove("active");
-
-                if (item.dataset.page === "overview") {
-                    item.classList.add("active");
-                }
-
-            });
+            showPage("overview");
 
         });
 
     }
 
+
+    /*
+       Overview page's Investigate button.
+       We support multiple possible IDs so the frontend
+       does not break if the button ID differs slightly.
+    */
+
+    const overviewInvestigateButtons =
+        document.querySelectorAll(
+            "#overviewInvestigateButton, .overview-investigate-button"
+        );
+
+
+    overviewInvestigateButtons.forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            showPage("investigation");
+
+        });
+
+    });
+
+
+    /*
+       Expose navigation globally so other functions
+       can switch pages when required.
+    */
+
+    window.showNirnayaPage = showPage;
+
+
+    showPage("overview");
+
 }
 
 
 /* =========================================================
-   QUICK SEARCH
+   QUICK SEARCH BUTTONS
 ========================================================= */
 
 function initializeQuickSearch() {
 
     const input =
         document.getElementById("investigationInput");
-
 
     const quickButtons =
         document.querySelectorAll(".quick-searches button");
@@ -225,7 +256,7 @@ function initializeQuickSearch() {
     }
 
 
-    quickButtons.forEach((button) => {
+    quickButtons.forEach(button => {
 
         button.addEventListener("click", () => {
 
@@ -239,47 +270,171 @@ function initializeQuickSearch() {
     });
 
 }
+
+
 /* =========================================================
-   LOAD REAL INVESTIGATION FROM BACKEND
+   INVESTIGATION INITIALIZATION
 ========================================================= */
 
-async function loadInvestigation(transactionId = "TXN_10021") {
+function initializeInvestigation() {
 
-    try {
+    /*
+       Overview search input
+    */
 
-        const response = await fetch(
-            "/api/investigate",
-            {
-                method: "POST",
+    const overviewInput =
+        document.getElementById("investigationInput");
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
 
-                body: JSON.stringify({
-                    transaction_id: transactionId
-                })
+    const overviewButton =
+        document.getElementById("investigateButton");
+
+
+    if (overviewButton) {
+
+        overviewButton.addEventListener("click", () => {
+
+            const transactionId =
+                overviewInput?.value.trim();
+
+
+            if (!transactionId) {
+
+                showFrontendMessage(
+                    "Please enter a Transaction ID.",
+                    "error"
+                );
+
+                return;
+
             }
+
+
+            openInvestigation(transactionId);
+
+        });
+
+    }
+
+
+    /*
+       Press Enter inside Overview search
+    */
+
+    if (overviewInput) {
+
+        overviewInput.addEventListener("keydown", event => {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                const transactionId =
+                    overviewInput.value.trim();
+
+
+                if (!transactionId) {
+
+                    showFrontendMessage(
+                        "Please enter a Transaction ID.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                openInvestigation(transactionId);
+
+            }
+
+        });
+
+    }
+
+
+    /*
+       Investigation page search
+    */
+
+    const investigationInput =
+        document.getElementById(
+            "investigationTransactionInput"
         );
 
 
-        if (!response.ok) {
-            throw new Error(
-                `Backend error: ${response.status}`
-            );
-        }
+    const investigationButton =
+        document.getElementById(
+            "investigationSearchButton"
+        );
 
 
-        const result = await response.json();
+    if (investigationButton) {
+
+        investigationButton.addEventListener(
+            "click",
+            () => {
+
+                const transactionId =
+                    investigationInput?.value.trim();
 
 
-        renderInvestigation(result);
+                if (!transactionId) {
 
-    } catch (error) {
+                    showFrontendMessage(
+                        "Please enter a Transaction ID.",
+                        "error"
+                    );
 
-        console.error(
-            "Investigation loading failed:",
-            error
+                    return;
+
+                }
+
+
+                loadInvestigation(transactionId);
+
+            }
+        );
+
+    }
+
+
+    /*
+       Enter key on investigation input
+    */
+
+    if (investigationInput) {
+
+        investigationInput.addEventListener(
+            "keydown",
+            event => {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    const transactionId =
+                        investigationInput.value.trim();
+
+
+                    if (!transactionId) {
+
+                        showFrontendMessage(
+                            "Please enter a Transaction ID.",
+                            "error"
+                        );
+
+                        return;
+
+                    }
+
+
+                    loadInvestigation(transactionId);
+
+                }
+
+            }
         );
 
     }
@@ -288,24 +443,176 @@ async function loadInvestigation(transactionId = "TXN_10021") {
 
 
 /* =========================================================
-   RENDER REAL INVESTIGATION RESULT
+   OPEN INVESTIGATION PAGE
+========================================================= */
+
+function openInvestigation(transactionId) {
+
+    if (typeof window.showNirnayaPage === "function") {
+
+        window.showNirnayaPage("investigation");
+
+    }
+
+
+    /*
+       Put transaction ID into investigation input
+    */
+
+    const investigationInput =
+        document.getElementById(
+            "investigationTransactionInput"
+        );
+
+
+    if (investigationInput) {
+
+        investigationInput.value =
+            transactionId;
+
+    }
+
+
+    loadInvestigation(transactionId);
+
+}
+
+
+/* =========================================================
+   LOAD INVESTIGATION FROM BACKEND
+========================================================= */
+
+async function loadInvestigation(transactionId) {
+
+    if (!transactionId) {
+
+        showFrontendMessage(
+            "Transaction ID is required.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    setInvestigationLoading(true);
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/investigate`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        transaction_id:
+                            transactionId
+                    })
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        /*
+           Backend can return a valid investigation
+           with TRANSACTION_NOT_FOUND.
+        */
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.error ||
+                `Backend error: ${response.status}`
+            );
+
+        }
+
+
+        window.currentInvestigation =
+            result;
+
+
+        renderInvestigation(result);
+
+
+        /*
+           Keep current transaction ID available
+           for Q&A.
+        */
+
+        window.currentTransactionId =
+            result.transaction_id ||
+            transactionId;
+
+
+        showFrontendMessage(
+            "Investigation loaded successfully.",
+            "success"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Investigation loading failed:",
+            error
+        );
+
+
+        showFrontendMessage(
+            error.message ||
+            "Unable to load investigation.",
+            "error"
+        );
+
+
+    } finally {
+
+        setInvestigationLoading(false);
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER INVESTIGATION
 ========================================================= */
 
 function renderInvestigation(result) {
 
-    /* ---------------------------------------------
-       BASIC TRANSACTION DATA
-    --------------------------------------------- */
+    if (!result) {
+        return;
+    }
+
+
+    /*
+       Basic transaction information
+    */
 
     setText(
         "investigationTransactionId",
         result.transaction_id || "Unavailable"
     );
 
+
     setText(
         "investigationSettlementId",
-        result.settlement?.settlement_id || "Unavailable"
+        result.settlement?.settlement_id ||
+        "Unavailable"
     );
+
 
     setText(
         "investigationAmount",
@@ -314,39 +621,48 @@ function renderInvestigation(result) {
             : "Unavailable"
     );
 
+
     setText(
         "investigationCurrency",
-        result.currency || "Unavailable"
+        result.currency || "INR"
     );
 
 
-    /* ---------------------------------------------
-       DETERMINATION
-    --------------------------------------------- */
+    /*
+       Determination
+    */
+
+    const determination =
+        result.determination || {};
+
 
     setText(
         "investigationStatus",
-        result.determination?.status || "EXCEPTION"
+        formatStatus(
+            determination.status
+        )
     );
+
 
     setText(
         "rootCause",
-        result.determination?.root_cause
-            ? formatRootCause(result.determination.root_cause)
-            : "Unavailable"
+        formatStatus(
+            determination.root_cause
+        )
     );
+
 
     setText(
         "severityText",
-        result.determination?.severity
-            ? `${result.determination.severity} severity`
-            : "Severity unavailable"
+        formatStatus(
+            determination.severity
+        )
     );
 
 
-    /* ---------------------------------------------
-       CONFIDENCE
-    --------------------------------------------- */
+    /*
+       Confidence
+    */
 
     setText(
         "confidenceScore",
@@ -356,89 +672,157 @@ function renderInvestigation(result) {
     );
 
 
-    /* ---------------------------------------------
-       SOURCE STATUS
-    --------------------------------------------- */
+    /*
+       Gateway
+    */
 
     setText(
         "gatewayStatus",
-        formatStatus(result.gateway?.status)
+        formatStatus(
+            result.gateway?.status
+        )
     );
+
 
     setText(
         "gatewayAmount",
         result.gateway?.amount != null
-            ? formatCurrency(result.gateway.amount)
+            ? formatCurrency(
+                result.gateway.amount
+            )
             : "Unavailable"
     );
 
+
     setText(
         "gatewayTimestamp",
-        formatTime(result.gateway?.timestamp)
+        formatDateTime(
+            result.gateway?.timestamp
+        )
     );
 
+
+    /*
+       Bank
+    */
 
     setText(
         "bankStatus",
-        formatStatus(result.bank?.status)
+        formatStatus(
+            result.bank?.status
+        )
     );
+
 
     setText(
         "bankUtr",
-        result.bank?.utr || "Unavailable"
+        result.bank?.utr ||
+        "Unavailable"
     );
 
+
+    /*
+       Ledger
+    */
 
     setText(
         "ledgerStatus",
-        formatStatus(result.ledger?.status)
+        formatStatus(
+            result.ledger?.status
+        )
     );
+
 
     setText(
         "ledgerAmount",
         result.ledger?.amount != null
-            ? formatCurrency(result.ledger.amount)
+            ? formatCurrency(
+                result.ledger.amount
+            )
             : "Unavailable"
     );
 
 
-    /* ---------------------------------------------
-       EVIDENCE
-    --------------------------------------------- */
+    /*
+       Evidence
+    */
 
     renderEvidence(
         result.evidence || []
     );
 
 
-    /* ---------------------------------------------
-       EXCEPTIONS
-    --------------------------------------------- */
+    /*
+       Exceptions
+    */
 
     renderExceptions(
         result.exceptions || []
     );
 
 
-    /* ---------------------------------------------
-       RECOMMENDED ACTION
-    --------------------------------------------- */
+    /*
+       Exception count
+    */
 
     setText(
-        "recommendedAction",
-        result.recommended_action || "No action available."
+        "exceptionCount",
+        String(
+            (result.exceptions || []).length
+        )
     );
 
 
-    /* ---------------------------------------------
-       TIMELINE
-       Backend currently does not return timeline.
-    --------------------------------------------- */
+    /*
+       AI Explanation
+    */
+
+    const ai =
+        result.ai || {};
+
+
+    setText(
+        "aiExplanation",
+        ai.explanation ||
+        ai.summary ||
+        "AI explanation is unavailable."
+    );
+
+
+    /*
+       Recommended Action
+    */
+
+    setText(
+        "recommendedAction",
+        result.recommended_action ||
+        "No action available."
+    );
+
+
+    /*
+       Customer Reply
+    */
+
+    setText(
+        "customerReply",
+        ai.customer_reply ||
+        "Customer reply is unavailable."
+    );
+
+
+    /*
+       Timeline
+       
+       Backend currently does not provide timeline data,
+       so we explicitly show that instead of inventing events.
+    */
 
     const timelineContainer =
         document.getElementById(
             "investigationTimeline"
         );
+
 
     if (timelineContainer) {
 
@@ -451,341 +835,28 @@ function renderInvestigation(result) {
     }
 
 
+    /*
+       What-if is currently not implemented
+    */
+
+    initializeWhatIf();
+
+
     initializeIcons();
 
 }
-/* =========================================================
-   MOCK INVESTIGATION RESULT
-   Temporary frontend development data only.
-========================================================= */
-
-const mockInvestigationResult = {
-
-    transaction_id: "TXN-10482",
-
-    amount: 12500,
-
-    currency: "INR",
-
-    settlement: {
-
-        settlement_id: "SET-78231",
-
-        status: "processed",
-
-        utr: "AXIS123456"
-
-    },
-
-    gateway: {
-
-        status: "captured",
-
-        amount: 12500,
-
-        timestamp: "2026-09-04T10:31:00"
-
-    },
-
-    bank: {
-
-        status: "pending",
-
-        amount: 12500,
-
-        utr: "AXIS123456",
-
-        timestamp: null
-
-    },
-
-    ledger: {
-
-        status: "pending",
-
-        amount: 12500,
-
-        timestamp: null
-
-    },
-
-    determination: {
-
-        status: "PENDING",
-
-        root_cause: "BANK_POSTING_DELAY",
-
-        severity: "MEDIUM"
-
-    },
-
-    confidence: 94,
-
-    timeline: [
-
-        {
-            event: "Payment captured",
-            source: "gateway",
-            timestamp: "2026-09-04T10:31:00",
-            status: "completed"
-        },
-
-        {
-            event: "Settlement processed",
-            source: "gateway",
-            timestamp: "2026-09-04T10:31:10",
-            status: "completed"
-        },
-
-        {
-            event: "Bank transfer initiated",
-            source: "bank",
-            timestamp: "2026-09-04T10:31:11",
-            status: "completed"
-        },
-
-        {
-            event: "Bank credit",
-            source: "bank",
-            timestamp: null,
-            status: "pending"
-        }
-
-    ],
-
-    evidence: [
-
-        "Gateway transaction was captured",
-
-        "Settlement was processed",
-
-        "UTR matched across settlement and bank records",
-
-        "Settlement amount matches bank amount"
-
-    ],
-
-    exceptions: [
-
-        "Bank credit timestamp is unavailable"
-
-    ],
-
-    recommended_action:
-        "Monitor the bank settlement using UTR AXIS123456."
-
-};
-/* =========================================================
-   RENDER INVESTIGATION RESULT
-========================================================= */
-
-function loadMockInvestigation() {
-
-    const result = mockInvestigationResult;
-
-
-    /* ---------------------------------------------
-       BASIC TRANSACTION DATA
-    --------------------------------------------- */
-
-    setText(
-        "investigationTransactionId",
-        result.transaction_id
-    );
-
-    setText(
-        "investigationSettlementId",
-        result.settlement.settlement_id
-    );
-
-    setText(
-        "investigationAmount",
-        formatCurrency(result.amount)
-    );
-
-    setText(
-        "investigationCurrency",
-        result.currency
-    );
-
-
-    /* ---------------------------------------------
-       DETERMINATION
-    --------------------------------------------- */
-
-    setText(
-        "investigationStatus",
-        result.determination.status
-    );
-
-    setText(
-        "rootCause",
-        formatRootCause(result.determination.root_cause)
-    );
-
-    setText(
-        "severityText",
-        `${result.determination.severity} severity`
-    );
-
-
-    /* ---------------------------------------------
-       CONFIDENCE
-    --------------------------------------------- */
-
-    setText(
-        "confidenceScore",
-        result.confidence
-    );
-
-
-    /* ---------------------------------------------
-       SOURCE STATUS
-    --------------------------------------------- */
-
-    setText(
-        "gatewayStatus",
-        formatStatus(result.gateway.status)
-    );
-
-    setText(
-        "gatewayAmount",
-        formatCurrency(result.gateway.amount)
-    );
-
-    setText(
-        "gatewayTimestamp",
-        formatTime(result.gateway.timestamp)
-    );
-
-
-    setText(
-        "bankStatus",
-        formatStatus(result.bank.status)
-    );
-
-    setText(
-        "bankUtr",
-        result.bank.utr || "Unavailable"
-    );
-
-
-    setText(
-        "ledgerStatus",
-        formatStatus(result.ledger.status)
-    );
-
-    setText(
-        "ledgerAmount",
-        formatCurrency(result.ledger.amount)
-    );
-
-
-    /* ---------------------------------------------
-       TIMELINE
-    --------------------------------------------- */
-
-    renderTimeline(result.timeline);
-
-
-    /* ---------------------------------------------
-       EVIDENCE
-    --------------------------------------------- */
-
-    renderEvidence(result.evidence);
-
-
-    /* ---------------------------------------------
-       EXCEPTIONS
-    --------------------------------------------- */
-
-    renderExceptions(result.exceptions);
-
-
-    /* ---------------------------------------------
-       RECOMMENDED ACTION
-    --------------------------------------------- */
-
-    setText(
-        "recommendedAction",
-        result.recommended_action
-    );
-
-}
 
 
 /* =========================================================
-   TIMELINE RENDERER
-========================================================= */
-
-function renderTimeline(events) {
-
-    const container =
-        document.getElementById("investigationTimeline");
-
-
-    if (!container) {
-        return;
-    }
-
-
-    container.innerHTML = "";
-
-
-    events.forEach((event) => {
-
-        const item =
-            document.createElement("div");
-
-
-        item.className =
-            `timeline-item ${event.status === "pending" ? "pending" : ""}`;
-
-
-        const timestamp =
-            event.timestamp
-                ? formatDateTime(event.timestamp)
-                : "Timestamp unavailable";
-
-
-        item.innerHTML = `
-
-            <span class="timeline-marker"></span>
-
-            <div class="timeline-content">
-
-                <strong>
-                    ${escapeHtml(event.event)}
-                </strong>
-
-                <span>
-                    ${escapeHtml(timestamp)}
-                </span>
-
-            </div>
-
-            <span class="timeline-source">
-                ${escapeHtml(event.source)}
-            </span>
-
-        `;
-
-
-        container.appendChild(item);
-
-    });
-
-}
-
-
-/* =========================================================
-   EVIDENCE RENDERER
+   EVIDENCE RENDERING
 ========================================================= */
 
 function renderEvidence(evidence) {
 
     const container =
-        document.getElementById("evidenceList");
+        document.getElementById(
+            "evidenceList"
+        );
 
 
     if (!container) {
@@ -793,33 +864,38 @@ function renderEvidence(evidence) {
     }
 
 
-    container.innerHTML = "";
+    if (!Array.isArray(evidence) ||
+        evidence.length === 0) {
 
-
-    evidence.forEach((item) => {
-
-        const row =
-            document.createElement("div");
-
-
-        row.className =
-            "evidence-item";
-
-
-        row.innerHTML = `
-
-            <i data-lucide="check-circle-2"></i>
-
-            <span>
-                ${escapeHtml(item)}
-            </span>
-
+        container.innerHTML = `
+            <div class="empty-state">
+                No evidence available.
+            </div>
         `;
 
+        return;
 
-        container.appendChild(row);
+    }
 
-    });
+
+    container.innerHTML =
+        evidence
+            .map((item, index) => {
+
+                return `
+                    <div class="evidence-item">
+                        <div class="evidence-number">
+                            ${index + 1}
+                        </div>
+
+                        <div class="evidence-text">
+                            ${escapeHtml(item)}
+                        </div>
+                    </div>
+                `;
+
+            })
+            .join("");
 
 
     initializeIcons();
@@ -828,17 +904,15 @@ function renderEvidence(evidence) {
 
 
 /* =========================================================
-   EXCEPTION RENDERER
+   EXCEPTION RENDERING
 ========================================================= */
 
 function renderExceptions(exceptions) {
 
     const container =
-        document.getElementById("exceptionList");
-
-
-    const count =
-        document.getElementById("exceptionCount");
+        document.getElementById(
+            "exceptionList"
+        );
 
 
     if (!container) {
@@ -846,38 +920,36 @@ function renderExceptions(exceptions) {
     }
 
 
-    container.innerHTML = "";
+    if (!Array.isArray(exceptions) ||
+        exceptions.length === 0) {
 
+        container.innerHTML = `
+            <div class="empty-state">
+                No exceptions detected.
+            </div>
+        `;
 
-    if (count) {
-        count.textContent = exceptions.length;
+        return;
+
     }
 
 
-    exceptions.forEach((item) => {
+    container.innerHTML =
+        exceptions
+            .map(item => {
 
-        const row =
-            document.createElement("div");
+                return `
+                    <div class="exception-item">
+                        <i data-lucide="triangle-alert"></i>
 
+                        <span>
+                            ${escapeHtml(item)}
+                        </span>
+                    </div>
+                `;
 
-        row.className =
-            "exception-item";
-
-
-        row.innerHTML = `
-
-            <i data-lucide="triangle-alert"></i>
-
-            <span>
-                ${escapeHtml(item)}
-            </span>
-
-        `;
-
-
-        container.appendChild(row);
-
-    });
+            })
+            .join("");
 
 
     initializeIcons();
@@ -886,113 +958,715 @@ function renderExceptions(exceptions) {
 
 
 /* =========================================================
-   HELPERS
+   Q&A
 ========================================================= */
 
-function setText(id, value) {
+function initializeQA() {
+
+    const askButton =
+        document.getElementById(
+            "askQuestionButton"
+        );
+
+
+    const questionInput =
+        document.getElementById(
+            "questionInput"
+        );
+
+
+    if (!askButton || !questionInput) {
+        return;
+    }
+
+
+    askButton.addEventListener(
+        "click",
+        askQuestion
+    );
+
+
+    questionInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                askQuestion();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ASK QUESTION API
+========================================================= */
+
+async function askQuestion() {
+
+    const questionInput =
+        document.getElementById(
+            "questionInput"
+        );
+
+
+    if (!questionInput) {
+        return;
+    }
+
+
+    const question =
+        questionInput.value.trim();
+
+
+    if (!question) {
+
+        showFrontendMessage(
+            "Please enter a question.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const transactionId =
+        window.currentTransactionId ||
+        document.getElementById(
+            "investigationTransactionInput"
+        )?.value.trim();
+
+
+    if (!transactionId) {
+
+        showFrontendMessage(
+            "Please investigate a transaction first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const askButton =
+        document.getElementById(
+            "askQuestionButton"
+        );
+
+
+    if (askButton) {
+
+        askButton.disabled = true;
+
+        askButton.dataset.originalText =
+            askButton.textContent;
+
+        askButton.textContent =
+            "Thinking...";
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/ask`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        transaction_id:
+                            transactionId,
+
+                        question:
+                            question
+
+                    })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.error ||
+                `Backend error: ${response.status}`
+            );
+
+        }
+
+
+        const answer =
+            result.follow_up_answer ||
+            result.answer ||
+            result.explanation ||
+            "No answer available.";
+
+
+        /*
+           If there is a dedicated Q&A answer element,
+           use it.
+        */
+
+        const answerContainer =
+            document.getElementById(
+                "qaAnswer"
+            );
+
+
+        if (answerContainer) {
+
+            answerContainer.textContent =
+                answer;
+
+        } else {
+
+            /*
+               Fallback: show the answer using a message.
+            */
+
+            showFrontendMessage(
+                answer,
+                "success"
+            );
+
+        }
+
+
+        questionInput.value = "";
+
+
+    } catch (error) {
+
+        console.error(
+            "Question request failed:",
+            error
+        );
+
+
+        showFrontendMessage(
+            error.message ||
+            "Unable to answer the question.",
+            "error"
+        );
+
+
+    } finally {
+
+        if (askButton) {
+
+            askButton.disabled = false;
+
+            askButton.textContent =
+                askButton.dataset.originalText ||
+                "Ask";
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   COPY ACTIONS
+========================================================= */
+
+function initializeCopyActions() {
+
+    document.addEventListener(
+        "click",
+        async event => {
+
+            const copyButton =
+                event.target.closest(
+                    "[data-copy-target]"
+                );
+
+
+            if (!copyButton) {
+                return;
+            }
+
+
+            const targetId =
+                copyButton.dataset.copyTarget;
+
+
+            const target =
+                document.getElementById(
+                    targetId
+                );
+
+
+            if (!target) {
+                return;
+            }
+
+
+            const text =
+                target.textContent.trim();
+
+
+            if (!text) {
+                return;
+            }
+
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    text
+                );
+
+
+                const originalHTML =
+                    copyButton.innerHTML;
+
+
+                copyButton.innerHTML =
+                    `<i data-lucide="check"></i> Copied`;
+
+
+                initializeIcons();
+
+
+                setTimeout(() => {
+
+                    copyButton.innerHTML =
+                        originalHTML;
+
+                    initializeIcons();
+
+                }, 1500);
+
+
+            } catch (error) {
+
+                console.error(
+                    "Copy failed:",
+                    error
+                );
+
+                showFrontendMessage(
+                    "Unable to copy.",
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+function initializeNotifications() {
+
+    const notificationButton =
+        document.querySelector(
+            "[data-notifications]"
+        );
+
+
+    if (!notificationButton) {
+        return;
+    }
+
+
+    notificationButton.addEventListener(
+        "click",
+        () => {
+
+            showFrontendMessage(
+                "No new notifications.",
+                "success"
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   WHAT-IF
+========================================================= */
+
+function initializeWhatIf() {
+
+    const whatIfButtons =
+        document.querySelectorAll(
+            ".primary-button"
+        );
+
+
+    whatIfButtons.forEach(button => {
+
+        const text =
+            button.textContent
+                .trim()
+                .toLowerCase();
+
+
+        if (text.includes("what-if") ||
+            text.includes("what if")) {
+
+            /*
+               What-If backend functionality does not
+               currently exist.
+            */
+
+            button.disabled = true;
+
+            button.title =
+                "What-If analysis is coming soon.";
+
+            /*
+               Avoid attaching multiple listeners.
+            */
+
+            if (
+                button.dataset.whatIfInitialized !==
+                "true"
+            ) {
+
+                button.addEventListener(
+                    "click",
+                    event => {
+
+                        event.preventDefault();
+
+                        showFrontendMessage(
+                            "What-If analysis is coming soon.",
+                            "success"
+                        );
+
+                    }
+                );
+
+                button.dataset.whatIfInitialized =
+                    "true";
+
+            }
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   LOADING STATE
+========================================================= */
+
+function setInvestigationLoading(isLoading) {
+
+    const button =
+        document.getElementById(
+            "investigationSearchButton"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    if (isLoading) {
+
+        button.disabled = true;
+
+        button.dataset.originalText =
+            button.innerHTML;
+
+        button.innerHTML =
+            `<i data-lucide="loader-circle"></i> Loading...`;
+
+    } else {
+
+        button.disabled = false;
+
+        button.innerHTML =
+            button.dataset.originalText ||
+            `<i data-lucide="search"></i> Investigate`;
+
+    }
+
+
+    initializeIcons();
+
+}
+
+
+/* =========================================================
+   FRONTEND MESSAGE
+========================================================= */
+
+function showFrontendMessage(
+    message,
+    type = "success"
+) {
+
+    /*
+       Remove previous message
+    */
+
+    const oldMessage =
+        document.querySelector(
+            ".frontend-message"
+        );
+
+
+    if (oldMessage) {
+        oldMessage.remove();
+    }
+
+
+    const messageElement =
+        document.createElement("div");
+
+
+    messageElement.className =
+        `frontend-message ${type}`;
+
+
+    messageElement.textContent =
+        message;
+
+
+    document.body.appendChild(
+        messageElement
+    );
+
+
+    setTimeout(() => {
+
+        messageElement.classList.add(
+            "fade-out"
+        );
+
+
+        setTimeout(() => {
+
+            messageElement.remove();
+
+        }, 300);
+
+
+    }, 3000);
+
+}
+
+
+/* =========================================================
+   HELPER — SET TEXT
+========================================================= */
+
+function setText(
+    elementId,
+    value
+) {
 
     const element =
-        document.getElementById(id);
+        document.getElementById(
+            elementId
+        );
 
 
-    if (element) {
-        element.textContent = value;
+    if (!element) {
+        return;
     }
 
-}
 
-
-function formatCurrency(amount) {
-
-    return new Intl.NumberFormat(
-        "en-IN",
-        {
-            style: "currency",
-            currency: "INR",
-            maximumFractionDigits: 0
-        }
-    ).format(amount);
+    element.textContent =
+        value != null
+            ? value
+            : "Unavailable";
 
 }
 
 
-function formatStatus(status) {
+/* =========================================================
+   HELPER — FORMAT STATUS
+========================================================= */
 
-    if (!status) {
+function formatStatus(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+
         return "Unavailable";
+
     }
 
-    return status
-        .charAt(0)
-        .toUpperCase() +
-        status.slice(1);
 
-}
-
-
-function formatRootCause(rootCause) {
-
-    return rootCause
-        .replaceAll("_", " ")
+    return String(value)
+        .replace(/_/g, " ")
         .toLowerCase()
-        .replace(/\b\w/g, (char) =>
+        .replace(/\b\w/g, char =>
             char.toUpperCase()
         );
 
 }
 
 
-function formatTime(timestamp) {
+/* =========================================================
+   HELPER — FORMAT CURRENCY
+========================================================= */
+
+function formatCurrency(
+    amount,
+    currency = "INR"
+) {
+
+    if (
+        amount === null ||
+        amount === undefined ||
+        amount === ""
+    ) {
+
+        return "Unavailable";
+
+    }
+
+
+    try {
+
+        return new Intl.NumberFormat(
+            "en-IN",
+            {
+                style: "currency",
+                currency: currency
+            }
+        ).format(amount);
+
+    } catch (error) {
+
+        return `${currency} ${amount}`;
+
+    }
+
+}
+
+
+/* =========================================================
+   HELPER — FORMAT DATE/TIME
+========================================================= */
+
+function formatDateTime(
+    timestamp
+) {
 
     if (!timestamp) {
         return "Unavailable";
     }
 
 
-    return new Date(timestamp)
-        .toLocaleTimeString(
-            "en-IN",
-            {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: false
-            }
-        );
-
-}
+    const date =
+        new Date(timestamp);
 
 
-function formatDateTime(timestamp) {
+    if (Number.isNaN(date.getTime())) {
 
-    if (!timestamp) {
-        return "Timestamp unavailable";
+        return timestamp;
+
     }
 
 
-    return new Date(timestamp)
-        .toLocaleString(
-            "en-IN",
-            {
-                day: "2-digit",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: false
-            }
-        );
+    return date.toLocaleString(
+        "en-IN",
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    );
 
 }
 
+
+/* =========================================================
+   HELPER — ESCAPE HTML
+========================================================= */
 
 function escapeHtml(value) {
 
     const div =
         document.createElement("div");
 
-    div.textContent = value;
+
+    div.textContent =
+        value == null
+            ? ""
+            : String(value);
+
 
     return div.innerHTML;
 
+}
+function initializeHealthDetails() {
+    const button = document.getElementById("viewHealthDetails");
+
+    if (!button) return;
+
+    button.addEventListener("click", () => {
+        if (typeof window.showNirnayaPage === "function") {
+            window.showNirnayaPage("health");
+        }
+    });
+}
+function initializeHistoryTransactions() {
+    const rows = document.querySelectorAll(".history-transaction");
+
+    rows.forEach(row => {
+        row.addEventListener("click", () => {
+            const transactionId = row.dataset.transactionId;
+
+            if (transactionId && typeof window.openInvestigation === "function") {
+                window.openInvestigation(transactionId);
+            }
+        });
+    });
+}
+function initializeAlerts() {
+    const button = document.getElementById("viewAlerts");
+
+    if (!button) return;
+
+    button.addEventListener("click", () => {
+        if (typeof window.showNirnayaPage === "function") {
+            window.showNirnayaPage("alerts");
+        }
+    });
 }
